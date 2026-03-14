@@ -29,4 +29,16 @@
  */
 export function maskAadhaar(aadhaarNumber) {
   // Your code here
+  console.log(aadhaarNumber);
+  if (typeof aadhaarNumber !== "string" || aadhaarNumber.length !== 12)
+    return "INVALID";
+
+  const pattern = /[^0-9]/g;
+  const hasNonDigitChar = pattern.test(aadhaarNumber);
+
+  if (hasNonDigitChar) return "INVALID";
+
+   let trimAadhar = aadhaarNumber.slice(8,12);
+  return 'XXXX-XXXX-' + trimAadhar;
+
 }

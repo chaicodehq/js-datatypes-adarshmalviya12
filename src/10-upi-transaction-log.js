@@ -48,4 +48,76 @@
  */
 export function analyzeUPITransactions(transactions) {
   // Your code here
+
+  if (!Array.isArray(transactions) || transactions.length === 0) return null;
+
+  const filteredTransaction = transactions.filter((item) => {
+    return (
+      typeof item.amount === "number" &&
+      item.amount > 0 &&
+      (item.type === "credit" || item.type === "debit")
+    );
+  });
+
+  if (filteredTransaction.length === 0) return null;
+
+  const total = filteredTransaction.reduce(
+    (prev, curr) => {
+      prev[curr.type] = (prev[curr.type] || 0) + curr.amount;
+      return prev;
+    },
+    { credit: 0, debit: 0 },
+  );
+
+  const categoryBreakdown = filteredTransaction.reduce((prev, curr) => {
+    prev[curr.category] = (prev[curr.category] || 0) + curr.amount;
+    return prev;
+  }, {});
+
+  const transactionCount = filteredTransaction.length;
+
+  const totalAmount = filteredTransaction.reduce((acc, t) => acc + t.amount, 0);
+
+  const avgTransaction = Math.round(totalAmount / transactionCount);
+
+  const contactCount = filteredTransaction.reduce((acc, curr) => {
+    acc[curr.to] = (acc[curr.to] || 0) + 1;
+    return acc;
+  }, {});
+
+  let frequentContact = null;
+  let maxCount = 0;
+
+  for (let contact in contactCount) {
+    if (contactCount[contact] > maxCount) {
+      maxCount = contactCount[contact];
+      frequentContact = contact;
+    }
+  }
+
+  let highestTransaction = filteredTransaction[0];
+
+  for (let i = 1; i < filteredTransaction.length; i++) {
+    if (filteredTransaction[i].amount > highestTransaction.amount) {
+      highestTransaction = filteredTransaction[i];
+    }
+  }
+
+  const allAbove100 = filteredTransaction.every((item) => item.amount > 100);
+
+  const hasLargeTransaction = filteredTransaction.some(
+    (item) => item.amount >= 5000,
+  );
+  return {
+    totalDebit: total.debit,
+    totalCredit: total.credit,
+    netBalance: total.credit - total.debit,
+    transactionCount,
+    categoryBreakdown,
+    avgTransaction,
+    frequentContact,
+    highestTransaction,
+    allAbove100,
+    hasLargeTransaction,
+  };
 }
